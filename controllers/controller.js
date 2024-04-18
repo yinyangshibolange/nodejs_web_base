@@ -1,25 +1,25 @@
 const fs = require("fs")
 const path = require("path")
 const urlencode = require("urlencode")
-let {setAppInfo, getAppInfo} = require("../config/ssr-md.config")
+let { setAppInfo, getAppInfo } = require("../config/ssr-md.config")
 const useFileDb = require("../db/useFileDb")
-const {genHtmlsByRouters} = require("../lib/router-tools")
-const {deleteFolderRecursive, deepCreateDir} = require("../lib/fs-utils")
-const { renderCommonHtml,} = require("../lib/html-tools")
-const {zipFold, unzipFold} = require("../lib/zip")
-
-
+const { genHtmlsByRouters } = require("../lib/router-tools")
+const { deleteFolderRecursive, deepCreateDir } = require("../lib/fs-utils")
+const { renderCommonHtml, } = require("../lib/html-tools")
+const { zipFold, unzipFold } = require("../lib/zip")
 const appDb = useFileDb("app.json")
 
 
+// -------------------------------------------------  modules --------------------------------------------------------
 
+const module_controllers = [require("./modules/runchild")]
 
 module.exports = [
     {
         index: ["/pass"],
         service: (params, config) => {
-            const {getPassordMd, getNextExpire} = require("../lib/usePass")(config)
-            const {password} = params
+            const { getPassordMd, getNextExpire } = require("../lib/usePass")(config)
+            const { password } = params
             if (config.admin_password === password) {
                 return {
                     success: 1,
@@ -33,17 +33,17 @@ module.exports = [
             }
         },
         send: (response, params, result, config) => {
-            const {getPassordMd, getNextExpire} = require("../lib/usePass")(config)
+            const { getPassordMd, getNextExpire } = require("../lib/usePass")(config)
             if (result.success === 1) {
                 response.setHeader('Set-Cookie', ['pass=' + result.pass, getNextExpire(), 'HttpOnly']); // ⑤
                 response.setHeader('Cache-Control', 'no-cache'); // ⑤
-                response.writeHead(301, {'Location': '/'});
+                response.writeHead(301, { 'Location': '/' });
             } else {
-                response.writeHead(301, {'Location': (config.password_index || "/auth.html") + `?success=0&message=${urlencode.encode('密码错误')}`});
+                response.writeHead(301, { 'Location': (config.password_index || "/auth.html") + `?success=0&message=${urlencode.encode('密码错误')}` });
             }
             return response.end()
         }
-    },{
+    }, {
         index: ["/api/admin/upload",],
         service: async (params) => {
             const urls = []
@@ -60,7 +60,7 @@ module.exports = [
         send: (response, params, result) => {
             return response.endJson(result)
         }
-    },  {
+    }, {
         index: ["/api/admin/savesetting"],
         service: params => {
             const {
@@ -76,14 +76,14 @@ module.exports = [
         },
         send: (response, params, result, config) => {
             // console.log(request)
-            response.writeHead(301, {'Location': `${response.req.headers["referer"]}?success=${result.success}&message=${urlencode.encode(result.message, 'utf-8')}`});
+            response.writeHead(301, { 'Location': `${response.req.headers["referer"]}?success=${result.success}&message=${urlencode.encode(result.message, 'utf-8')}` });
             return response.end()
         }
     }, {
         index: ["/api/admin/savepassword"],
         service: params => {
-            const {password, confirmPassword, need_password,} = params
-            if(need_password === 'true') {
+            const { password, confirmPassword, need_password, } = params
+            if (need_password === 'true') {
                 if (!/\w{6,20}/.test(password)) {
                     return {
                         success: 0,
@@ -111,10 +111,10 @@ module.exports = [
         },
         send: (response, params, result, config) => {
             // console.log(request)
-            response.writeHead(301, {'Location': `${response.req.headers["referer"]}?success=${result.success}&message=${urlencode.encode(result.message, 'utf-8')}`});
+            response.writeHead(301, { 'Location': `${response.req.headers["referer"]}?success=${result.success}&message=${urlencode.encode(result.message, 'utf-8')}` });
             return response.end()
         }
-    },  
+    },
     { // /api/admin/genSite
         // nocache: true,
         index: ["/api/admin/genSite"],
@@ -138,7 +138,7 @@ module.exports = [
             for (let k = 0; k < htmls.length; k++) {
                 const item = htmls[k]
                 // console.log(item)
-                if(item.genSite === true) {
+                if (item.genSite === true) {
                     await deepCreateDir(deepCreateDir, item.index)
                     const htmlContent = await renderCommonHtml(item, item.index, urlencode.decode(item.index.replace(/\?.*/, ""), 'utf8'))
                     await fs.promises.writeFile(path.resolve(static_fold_path, '.' + item.index), htmlContent)
@@ -152,13 +152,14 @@ module.exports = [
                 message: '生成成功'
             }
         },
-        send:  (response, params, result, config) => {
+        send: (response, params, result, config) => {
             // console.log('2',response.req.headers["referer"])
             // response 设置不缓存
             // response.setHeader('Cache-Control', 'no-cache'); // ⑤
 
-            response.writeHead(301, {'Location': `${response.req.headers["referer"]}?success=${result.success}&message=${urlencode.encode(result.message, 'utf-8')}`});
+            response.writeHead(301, { 'Location': `${response.req.headers["referer"]}?success=${result.success}&message=${urlencode.encode(result.message, 'utf-8')}` });
             return response.end()
         }
-    }, 
+    },
+    ...module_controllers,
 ]
