@@ -26,6 +26,7 @@
     "ejs": "^3.1.9",
     "file-system-db": "^2.0.0",
     "include-media": "^2.0.0",
+    "lodash": "^4.17.21",
     "md5": "^2.3.0",
     "mime": "^3.0.0",
     "multiparty": "^4.2.3",

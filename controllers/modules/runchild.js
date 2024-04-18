@@ -1,7 +1,7 @@
 module.exports = {
     index: ['/api/admin/runchild'],
     service: async (parmas) => {
-
+        
     },
     send:  (response, params, result, config) => {
         // console.log(request)
