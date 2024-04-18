@@ -1,0 +1,651 @@
+<html>
+<head>
+
+    <link rel="stylesheet" href="/css/modules/index.css">
+    <title>文章编辑</title>
+    <link rel="stylesheet" href="/css/editormd.min.css">
+
+    <script src="/plugins/switch/index.min.js"></script>
+
+    <script src="/js/echarts.min.js"></script>
+
+    <script src="/plugins/nice-select/js/jquery.nice-select.js"></script>
+    <link rel="stylesheet" href="/plugins/nice-select/css/nice-select.css">
+
+    <!-- filepond start -->
+    <link rel="stylesheet" href="/plugins/filepond/dist/filepond.min.css">
+    <script src="/plugins/filepond/dist/filepond.min.js"></script>
+    <script src="/plugins/filepond/filepond.jquery.js"></script>
+    <script src="/plugins/filepond/preview/preview.js"></script>
+    <link rel="stylesheet" href="/plugins/filepond/preview/preview.css">
+    <script src="/plugins/filepond/validate/type.js"></script>
+    <script src="/plugins/filepond/validate/size.js"></script>
+    <!-- filepond end -->
+</head>
+
+<body>
+<section id="container" class="scroll-999">
+  <div class="flex justify-between align-center page-title ">
+      <h2 class="flex align-center">
+          <a id="leftController" class="left-controller ml-5px">
+              <i class="iconfont icon-category"></i>
+          </a>
+          <a href="/" class="color-fff ml-16px">首页</a>
+      </h2>
+      <div class="mt-0px mb-0px pd-16px  color-fff ">
+
+          <a href="/manager" class="color-fff font-15px">
+              <i class="iconfont icon-nav_icon_xitongshezhi color-fff"></i>内容管理
+          </a>
+      </div>
+  </div>
+
+
+
+    <section id="typeForm" class="dialog">
+        <div class="dialog-mask"></div>
+        <div class="dialog-content">
+            <div class="dialog-header">添加分类</div>
+            <div class="dialog-body">
+                <form action="/api/admin/postType" class="common-form" method="post" enctype="multipart/form-data">
+                    <div class="common-form-item">
+                        <label for="type">分类名称</label>
+                        <input id="type" class="common-input w-500px" name="type" placeholder="请输入分类名称" autocomplete="off">
+                    </div>
+<!--                    <div class="common-form-item">-->
+<!--                        <label for="parent">上级分类</label>-->
+<!--                        <input id="parent" name="parent" readonly>-->
+<!--                    </div>-->
+                    <div class="flex justify-end align-center common-btn-group">
+                        <button class="submit common-btn primary  mt-20px" type="submit">提交</button>
+                        <button class="common-btn ml-10px  mt-20px" type="button" onclick="closeDialog('typeForm')">取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <section id="typeFormRename" class="dialog">
+        <div class="dialog-mask"></div>
+        <div class="dialog-content">
+            <div class="dialog-header">修改分类名称</div>
+            <div class="dialog-body">
+                <form action="/api/admin/renameType" method="post" enctype="multipart/form-data" class="common-form">
+                    <div class="common-form-item">
+                        <label for="type">原分类名称</label>
+                        <input id="renameOldType" name="type" placeholder="" autocomplete="off" readonly class="common-input">
+                    </div>
+                    <div class="common-form-item">
+                        <label for="newType">新分类名称</label>
+                        <input id="newType" name="newType" placeholder="请输入新分类名称" autocomplete="off" class="common-input">
+                    </div>
+                    <div class="common-btn-group justify-end">
+                        <button class="submit common-btn primary" type="submit">提交</button>
+                        <button class=" common-btn  cancel" >取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <div class="flex h-100per">
+        <section id="typeLeft" class="typeLeft-hidden">
+
+            <script>
+                $("#leftController").on('click', function() {
+                    $("#typeLeft").toggleClass("typeLeft-hidden")
+                })
+            </script>
+
+       <div class="flex justify-end">
+           <a id="exitTypeLeft">
+               <i class="iconfont icon-exit"></i>
+           </a>
+       </div>
+            <script>
+                $("#exitTypeLeft").on('click', function() {
+                    $("#typeLeft").addClass("typeLeft-hidden")
+                })
+            </script>
+
+            <div class="custom-nav">
+                    <a href="/" class=" flex justify-center w-100per">
+                        <img src="/images/wen.png" alt="" class="w-130px h-130px rd-130px">
+                        </a>
+                <a class="add-type flex add-type-top" data-type="">+添加分类</a>
+            </div>
+            <div class="md-menu">
+                <%- editMenu %>
+            </div>
+        </section>
+        <section id="editRight">
+            <% if(typeof mdObj.id !== 'undefined' || typeof type !== 'undefined'){ %>
+                <form action="/api/admin/postMd" class="pd-20px common-form" method="post" enctype="multipart/form-data">
+                    <% if(typeof id !== 'undefined'){ %>
+                        <%- `<input type="text" name="id" value="${id}" style="display: none">` %>
+                    <% } %>
+                    <div class="font-18px flex align-center">
+                        <div class=" color-999">      所属分类：  </div>
+                        <select name="mdTypeSelect" id="mdTypeSelect" class="nice-select small">
+                            <% for(let type of mdTypes){ %>
+                                <option
+                                        value="<%-type.type%>"
+                                        data-id="<%-mdObj.id%>"
+                                        <%- (mdObj.dir || (typeof type !== 'undefined' ? type : '')) === type.type ? 'selected' : '' %>
+                                >
+                            <%-type.type%>
+                                </option>
+                            <% } %>
+                        </select>
+                        <script>
+                            $(document).ready(function() {
+                                $('select.nice-select').niceSelect()
+                                // FastClick.attach(document.body);
+                            });
+
+
+
+                            $("#mdTypeSelect").on('change',  function(event) {
+                                const $this = $(this)
+                                const type = $this.val()
+                                if(type === "<%- mdObj.dir || (typeof type !== 'undefined' ? type : '') %>") return
+                                newConfirm({
+                                    title: '提示',
+                                    content: '确定要修改目录吗',
+                                    ok: function () {
+                                        window.location.href = `/api/admin/moveMd?id=<%-mdObj.id%>&type=${type}`
+                                    },
+                                    cancle: function() {
+                                        $this.children("option").filter(function () {
+                                            return $(this).val() === "<%- mdObj.dir || (typeof type !== 'undefined' ? type : '') %>"
+                                        }).prop("selected", true)
+                                        $('select.nice-select').niceSelect("update")
+                                    }
+                                })
+
+                            });
+                        </script>
+
+                    </div>
+                    <div class=" mt-15px">
+                        <div class="common-form-item align-center">
+                            <label for="title">标题</label>
+                            <input id="title" class="flex-1  common-input" name="title" placeholder="请输入标题"
+                                   autocomplete="off" value="<%- mdObj.title %>">
+                        </div>
+                        <div class="common-form-item align-center">
+                            <label for="author">作者</label>
+                            <input id="author" class=" flex-1  common-input" name="author" placeholder="请输入作者" value="<%- mdObj.author %>">
+                        </div>
+                            <div class="common-form-item">
+                                <label for="desp">描述</label>
+                                <textarea id="desp" name="desp" class="flex-1 common-input" placeholder="请输入描述" rows="5">
+
+                            </textarea>
+                            </div>
+
+
+                        <div class=" common-form-item " style="display: none;">
+                            <label for="type">分类</label>
+                            <input id="type" name="type" placeholder="" readonly
+                                   value="<%- mdObj.dir || (typeof type !== 'undefined' ? type : '') %>">
+                        </div>
+
+                        <div class=" common-form-item ">
+                            <label for="tag">标签</label>
+                            <input id="tag" class=" common-input flex-1 " name="tag" placeholder="请输入描述" value="<%- mdObj.tag %>">
+                        </div>
+
+                        <div class=" common-form-item  w-360px " style="display: block;min-height: 300px;">
+                            <label for="banner">封面</label>
+
+                            <div id="bannerInputContainer" class="mt-10px">
+                                <input id="bannerInput" type="file" name="banner" class="common-filepond border-none  " accept="image/*" style="height: 300px;">
+
+                            </div>
+
+                                </div>
+
+                      <div class=" flex-wrap" style="white-space: nowrap">
+                          <div class=" common-form-item">
+                              <label for="recommend">是否推荐</label>
+                              <input type="checkbox" id="recommend" name="recommend"
+                                     value="<%- mdObj.recommend %>" <%- mdObj.recommend ? 'checked' : '' %>
+                                     style="display: none">
+                              <jelly-switch
+                                      onToggle="handleToggle('recommend')" <%- mdObj.recommend ? 'checked' : '' %>></jelly-switch>
+                          </div>
+
+
+                          <div class=" common-form-item ">
+                              <label for="istop">是否置顶</label>
+                              <input type="checkbox" id="istop" name="istop"
+                                     value="<%- mdObj.istop %>" <%- mdObj.istop ? 'checked' : '' %> style="display: none">
+                              <jelly-switch
+                                      onToggle="handleToggle('istop')" <%- mdObj.istop ? 'checked' : '' %>></jelly-switch>
+                          </div>
+
+                          <div class=" common-form-item ">
+                              <label for="ispublish">是否发布</label>
+                              <input type="checkbox" id="ispublish" name="ispublish"
+                                     value="<%- mdObj.ispublish %>" <%- mdObj.ispublish ? 'checked' : '' %>
+                                     style="display: none">
+                              <jelly-switch
+                                      onToggle="handleToggle('ispublish')" <%- mdObj.ispublish ? 'checked' : '' %>></jelly-switch>
+                          </div>
+                      </div>
+                    </div>
+                    <div class="mt-10px ">
+                        <div id="editor"></div>
+                    </div>
+
+                        <div class="common-btn-group">
+                            <button class="primary common-btn" type="submit">提交</button>
+
+                            <% if(typeof id !== 'undefined'){ %>
+                                <%- `<a class="common-btn" onclick="deleteMd()">删除</a>` %>
+                            <% } %>
+                        </div>
+
+
+
+                </form>
+
+            <% }else{ %>
+
+                <div class="dashboard">
+                    <div class="dashboard-title">欢迎来到文档管理系统！</div>
+
+                    <div class="dashboard-cards">
+                        <div class="card-item">
+                            <div>总文章数</div>
+                            <div><%- mdInfoDatas.mdsCount %></div>
+                        </div>
+                        <div class="card-infos">
+                            <div class="card-item">
+                                <div>已发布文章数</div>
+                                <div><%- mdInfoDatas.publish_count %></div>
+                            </div>
+                            <div class="card-item">
+                                <div>草稿数</div>
+                                <div><%- mdInfoDatas.unpublish_count %></div>
+                            </div>
+                            <div class="card-item">
+                                <div>推荐数</div>
+                                <div><%- mdInfoDatas.recommend_count %></div>
+                            </div>
+                            <div class="card-item">
+                                <div>置顶数</div>
+                                <div><%- mdInfoDatas.istop_count %></div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="w100p dashboard-charts">
+                        <div id="typeChart">
+
+                        </div>
+
+                        <div id="tagChart">
+
+                        </div>
+
+                        <div id="createChart">
+
+                        </div>
+
+                        <div id="publishChart">
+
+                        </div>
+                    </div>
+
+
+
+                </div>
+
+            <% } %>
+
+        </section>
+    </div>
+
+
+</section>
+
+<% if(typeof mdObj.id !== 'undefined' || typeof type !== 'undefined'){ %>
+    <script src="js/editormd.min.js"></script>
+    <script>
+        var editor = editormd("editor", {
+            width: "100%",
+            height: "100%",
+            markdown: `<% if(mdObj.content) { %><%- mdObj.content.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\//g, '\\/').replace(/</g, '\\<').replace(/>/g, '\\>').replace(/\$/g, '\\$').replace(/{/g, '\\{').replace(/}/g, '\\}') %><% } %>`,     // dynamic set Markdown text
+            path: "/lib/", // Autoload modules mode, codemirror, marked... dependents libs path
+
+
+            imageUpload: true,
+            imageFormats: ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+            imageUploadURL: "/api/admin/upload",
+
+        });
+
+        $("#desp").val(`<% if(mdObj.desp) { %><%- mdObj.desp.replace(/`/g, '\\`') %><% } %>`)
+
+        function img2Base64(input_file, get_data) {
+            /*input_file：文件按钮对象*/
+            /*get_data: 转换成功后执行的方法*/
+            if (typeof (FileReader) === 'undefined') {
+                console.log("图片异常")
+            } else {
+                try {
+                    /*图片转Base64 核心代码*/
+                    var file = input_file
+                    //这里我们判断下类型如果不是图片就返回 去掉就可以上传任意文件
+                    if (!/image\/\w+/.test(file.type)) {
+                        console.log("图片img2base64：转化成功");
+                        return false;
+                    }
+                    var reader = new FileReader();
+                    reader.onload = function () {
+                        get_data(this.result);
+                    }
+                    reader.readAsDataURL(file);
+                } catch (e) {
+                    console.log("图片img2base64：转化失败")
+                    // console.log(local_message.E_CODE_0008 + e.toString());
+                }
+            }
+        }
+
+        $("#banner").change(function (ev) {
+            const bannerFile = $(this)[0].files[0]
+            img2Base64(bannerFile, function (data) {
+                $("#bannerShow").attr("src", data)
+            })
+            $("#uploadController #oldBanner").remove()
+        })
+
+        function handleToggle(id) {
+            var event = window.event || arguments[0];
+            $(`#${id}`).attr('checked', event.detail.value).val(event.detail.value)
+        }
+
+        let type = `<%- mdObj.dir %>`
+
+        const title = `<%- mdObj.title %>`
+        let firstDom
+        if (type) {
+            let subType = '', typelis = $("#typeLeft .md-menu ul > li.type-li")
+            type.split("-").forEach(item => {
+                if (subType) {
+                    subType = subType + '-' + item
+                } else {
+                    subType = item
+                }
+                for (let i = 0; i < typelis.length; i++) {
+                    const typeli = typelis[i]
+                    if (typeli.dataset.type === subType) {
+                        firstDom = $(typeli)[0]
+                        $(typeli).addClass("active")
+                        const submenuNode = $(typeli).next()
+                        submenuNode.addClass("submenu-active")
+                        break
+                    }
+                }
+
+            })
+            let mdlis = $("#typeLeft .md-menu ul > li.md-li")
+            for (let i = 0; i < mdlis.length; i++) {
+                const mdli = mdlis[i]
+                if (mdli.dataset.type === subType && mdli.dataset.title === title) {
+                    firstDom = $(mdli)[0]
+                    $(mdli).addClass("active")
+                    break
+                }
+            }
+
+
+        } else {
+            let mdlis = $("#typeLeft .md-menu > ul.root > li.md-li")
+            for (let i = 0; i < mdlis.length; i++) {
+                const mdli = mdlis[i]
+                if (mdli.dataset.title === title) {
+                    firstDom = $(mdli)[0]
+                    $(mdli).addClass("active")
+                    break
+                }
+            }
+        }
+        if (firstDom) firstDom.scrollIntoView({behavior: "smooth"});
+    </script>
+<% }else{ %>
+
+    <script>
+        var myChart = echarts.init(document.getElementById('typeChart'));
+        // 指定图表的配置项和数据
+        var option = {
+            title: {
+                text: '文章分类统计',
+                left: 'center'
+            },
+
+            tooltip: {
+                trigger: 'item'
+            },
+            legend: {
+                orient: 'vertical',
+                left: 'left'
+            },
+            series: [
+                {
+                    name: '分类文章数',
+                    type: 'pie',
+                    radius: '50%',
+                    data: [<%- mdInfoDatas.mdsTypeCount.map(item => JSON.stringify({
+                        value: item.count,
+                        name: item.type
+                    })) %>]
+                }
+            ]
+        };
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+
+        var tagChart = echarts.init(document.getElementById('tagChart'));
+        // 指定图表的配置项和数据
+        var tagOption = {
+            title: {
+                text: '文章标签统计',
+                left: 'center'
+            },
+
+            tooltip: {
+                trigger: 'item'
+            },
+            legend: {
+                orient: 'vertical',
+                left: 'left'
+            },
+            series: [
+                {
+                    name: '标签文章数',
+                    type: 'pie',
+                    radius: '50%',
+                    data: [<%- mdInfoDatas.mdTags.map(item => JSON.stringify({
+                        value: item.count,
+                        name: item.tag
+                    })) %>]
+                }
+            ]
+        };
+        tagChart.setOption(tagOption);
+
+
+        var createChart = echarts.init(document.getElementById('createChart'));
+        // 指定图表的配置项和数据
+        var createOption = {
+            title: {
+                text: '文章创建时间线',
+                left: 'center'
+            },
+
+            tooltip: {
+                trigger: 'item'
+            },
+            legend: {
+                orient: 'vertical',
+                left: 'left'
+            },
+            xAxis: {
+                type: 'category',
+                data: [<%- mdInfoDatas.mdCreateTimeLine.map(item => JSON.stringify(item.time)) %>]
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    name: '创建时间线',
+                    type: 'bar',
+                    data: [<%- mdInfoDatas.mdCreateTimeLine.map(item => item.count) %>]
+                }
+            ]
+        };
+        createChart.setOption(createOption);
+
+        var publishChart = echarts.init(document.getElementById('publishChart'));
+        // 指定图表的配置项和数据
+        var publishOption = {
+            title: {
+                text: '文章发布时间线',
+                left: 'center'
+            },
+
+            tooltip: {
+                trigger: 'item'
+            },
+            legend: {
+                orient: 'vertical',
+                left: 'left'
+            },
+            xAxis: {
+                type: 'category',
+                data: [<%- mdInfoDatas.mdPublishTimeLine.map(item => JSON.stringify(item.time)) %>]
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    name: '发布时间线',
+                    type: 'bar',
+                    data: [<%- mdInfoDatas.mdPublishTimeLine.map(item => item.count) %>]
+                }
+            ]
+        };
+        publishChart.setOption(publishOption);
+    </script>
+
+<% } %>
+
+<script src="/js/jquery_dom.js"></script>
+
+<script>
+    function deleteMd() {
+        newConfirm({
+            content: '确定要删除本文章吗？',
+            ok: () => {
+                <% if(typeof id !== 'undefined'){ %>
+                <%- `window.location.href = \'/api/admin/deleteMd?id=${id}\'` %>
+                <% } %>
+            },
+        })
+    }
+
+    showMessage(`<%- typeof success !== 'undefined' && success %>`, `<%- typeof message !== 'undefined' && message %>`)
+</script>
+
+
+<script>
+    $(".type-li > a").click(function (ev) {
+        $(this).parent().toggleClass("active")
+        var next_li = $(this).parent().next()
+        next_li.toggleClass("submenu-active")
+    })
+    $(".md-li > a").click(function (ev) {
+        console.log(ev.currentTarget.dataset)
+    })
+    $(".add-type").click(function (ev) {
+        ev.preventDefault()
+        ev.stopPropagation()
+        $("#typeForm").toggle()
+        $("#parent").val(ev.currentTarget.dataset.type)
+
+    })
+    $(".rename-type").click(function (ev) {
+        ev.preventDefault()
+        ev.stopPropagation()
+        $("#typeFormRename").toggle()
+        $("#renameOldType").val(ev.currentTarget.dataset.type)
+    })
+
+    $("#typeFormRename .dialog-mask").click(function (ev) {
+        ev.preventDefault()
+        ev.stopPropagation()
+        $("#typeFormRename").toggle()
+    })
+    $("#typeFormRename .cancel").click(function (ev) {
+        ev.preventDefault()
+        ev.stopPropagation()
+        $("#typeFormRename").toggle()
+    })
+
+
+    $("#typeForm .dialog-mask").click(function (ev) {
+        ev.preventDefault()
+        ev.stopPropagation()
+        $("#typeForm").toggle()
+    })
+    $(".drop-btn").on('click', function (ev) {
+        $("#" + ev.target.dataset.panelid).toggle()
+    })
+    $(document).click(function (ev) {
+        // 如果点击区域不在下拉框内，则隐藏下拉框
+        if (!$(ev.target).closest(".drop-container").length) {
+            $(".drop-panel").hide()
+        }
+    })
+function closeDialog(id) {
+        $(`#${id}`).hide()
+}
+
+
+</script>
+
+
+
+<script type="module">
+    import zh_cn from '/plugins/filepond/locale/zh-cn.js';
+    FilePond.setOptions(zh_cn);
+</script>
+<script>
+    FilePond.registerPlugin(FilePondPluginFileValidateSize);
+    FilePond.registerPlugin(FilePondPluginImagePreview);
+    FilePond.registerPlugin(FilePondPluginFileValidateType);
+
+
+    $(document).ready(function() {
+        const pond = FilePond.create($("#bannerInput")[0] );
+        pond.setOptions({
+            allowMultiple: false,
+            storeAsFile: true,
+            maxFileSize: '2MB',
+        });
+        <% if(mdObj.banner){%>
+        pond.addFile( "<%- mdObj.banner.replace(/\\/g, "/") %>")
+        <% }%>
+    })
+
+</script>
+</body>
+</html>

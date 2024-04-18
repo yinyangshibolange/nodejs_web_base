@@ -1,0 +1,462 @@
+@import "../mixin.scss";
+
+body {
+  overflow: hidden;
+}
+
+#app {
+  height: 100%;
+  min-height: auto !important;
+}
+
+#container {
+  margin: 0 !important;
+  width: 100% !important;
+  background: #fff;
+  height: 100%;
+}
+
+
+
+@include media('<=tablet') {
+  .left-controller {
+    display: block !important;
+    background: rgba($info-color, 0.3);
+transition: all 0.6s ease-in-out;
+    &:hover {
+      background: $info-color;
+    }
+    border-radius: 3px;
+    color: #fff;
+    width: 2em;
+    height: 2em;
+    text-align: center;
+    line-height: 2em;
+    cursor: pointer;
+   & > i {
+     font-size: 1.2em;
+   }
+  }
+
+  #typeLeft {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 13;
+    width: 20em;
+    height: 100%;
+    transition: left 0.3s ease-in-out;
+
+
+    &.typeLeft-hidden {
+      left: -100%;
+    }
+  }
+
+}
+
+.left-controller {
+  display: none;
+}
+
+#typeLeft {
+  flex-shrink: 0;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  width: 20em;
+  background: $md-menu-background;
+  box-shadow:         3px 0px 5px 0px rgba(50, 50, 50, 0.29);
+
+  #exitTypeLeft {
+    width: 100%;
+    height: 50px;
+    display: none;
+    right: 0;
+    position: relative;
+    background: #FFF;
+    line-height: 50px;
+    transition: all 0.5s ease-in-out;
+    cursor: pointer;
+    @include media('<=tablet') {
+      display: block;
+    }
+    //border-radius: 0 0  0 9px;
+    & > i{
+      font-size: 20px;
+      color: #333;
+      position: absolute;
+      right: 20px;
+      transition: all 0.5s ease-in-out;
+    }
+    &:hover{
+      background: #f2f2f2;
+      & > i {
+        color: #000;
+        font-weight: bold;
+        right: 50%;
+      }
+    }
+  }
+
+  .custom-nav {
+    &>a {
+      width: 100%;
+      color: $md-menu-color;
+      padding: 0.9em 0.3em;
+      // border-radius: 1em;
+      cursor: pointer;
+
+
+      &:hover {
+        background: $md-menu-background-hover;
+      }
+    }
+  }
+
+  .md-menu {
+    .root {
+      ul {
+        margin: 0 !important;
+      }
+    }
+  }
+
+  .submenu {
+    height: 0;
+    overflow: hidden;
+
+    &.submenu-active {
+      height: fit-content;
+      background: $md-menu-background-active;
+    }
+
+    &>ul {
+      padding: 0;
+    }
+  }
+
+  ul {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  li {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    //background: $md-menu-background;
+    color: #999;
+
+    &.active {
+      background: $md-menu-background-active;
+    }
+
+    &:not(.submenu) {
+      &:hover {
+        .li-title {
+          color: $md-menu-a-active-color !important;
+          font-weight: bold;
+        }
+      }
+    }
+
+    &.type-li {
+      position: relative;
+
+      &:hover {
+        background: $md-menu-background-hover;
+      }
+
+      &::before {
+        font-family: 'iconfont';
+        content: '\e975';
+        display: inline-block;
+        transition: all 0.3s ease-in-out;
+        font-size: 0.7em;
+        margin-right: 0.2em;
+        margin-left: 0.5em;
+        color: $md-menu-color;
+      }
+
+      &.active {
+
+        background: $md-menu-background-active;
+        &>a {
+          color: $md-menu-a-active-color;
+          font-weight: bold;
+        }
+
+        &::before {
+          transform: rotate(90deg);
+        }
+      }
+
+
+    }
+
+
+    &.md-li {
+      padding-left: 22px;
+      position: relative;
+
+      &.active {
+        &>a {
+          color: $md-menu-a-active-color;
+          font-weight: bold;
+        }
+
+        background: $md-menu-background-active;
+         &::before {
+          content: '';
+          display: block;
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          width: 3px;
+          left: 0;
+          background: $md-menu-background-hover;
+        }
+
+      }
+
+
+      .move-panel {
+        display: none;
+      }
+    }
+
+    &.type-li,
+    &.md-li {
+      position: relative;
+
+      .type-btns {
+        display: none;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        right: 0;
+        align-items: center;
+        justify-content: flex-end;
+        background: rgba(0, 0, 0, 0.3);
+        padding: 0.5em;
+        border-radius: 0.5em;
+
+        &>a {
+          color: #d1d1d1;
+          text-decoration: none;
+          cursor: pointer;
+
+          &:hover {
+            color: #fff;
+          }
+        }
+      }
+
+      &:hover {
+        .type-btns {
+          display: flex;
+        }
+      }
+
+    }
+
+    &>a {
+      display: block;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      padding: 0.7em 0.55em;
+      cursor: pointer;
+      box-sizing: border-box;
+      color: $md-menu-a-color;
+      text-decoration: none;
+
+      &.li-title {
+        flex: 1;
+      }
+
+
+    }
+
+    .add-type {
+      color: $md-menu-color;
+      cursor: pointer;
+    }
+
+    .add-md {
+      color: $md-menu-color;
+      cursor: pointer;
+      margin-left: 0.3em;
+      margin-right: 0.3em;
+    }
+
+    &.md-li {
+      &>a {}
+
+    }
+  }
+}
+
+#editRight {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+
+.editormd-fullscreen {
+  z-index: 10;
+}
+
+.drop-container {
+  width: fit-content;
+  height: fit-content;
+  position: relative;
+  display: inline-block;
+
+  .drop-panel {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 910;
+    background: #f2f2f2;
+    border-radius: 0.5em;
+
+    &>a {
+      display: block;
+      padding: 0.3em 0.5em;
+
+      &:hover {
+        background: #ccc;
+      }
+
+    }
+  }
+}
+
+.dashboard {
+  position: relative;
+  width: 100%;
+  padding: 2em;
+  box-sizing: border-box;
+  @include media('<=tablet') {
+    padding: 1em;
+  }
+
+  &-title {
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  &-cards {
+    margin-top: 2em;
+
+    padding: 2em;
+    border-radius: 1em;
+    border: 1px solid #f2f2f2;
+    box-shadow: 0 0 3px 3px #f2f2f2;
+    text-align: center;
+
+    display: flex;
+
+    @include media('<=tablet') {
+      display: block;
+    }
+    & > .card-item {
+      width: 16em;
+      padding-right: 2em;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-right: 1px solid #f2f2f2;
+      @include media('<=tablet') {
+        border-right: none;
+        padding-right: 0;
+        width: auto;
+      }
+    }
+
+    .card-item {
+      @include media('<=tablet') {
+        padding: 1em 0;
+      }
+      &>div {
+        &:first-child {
+
+          font-size: 17px;
+          font-weight: bold;
+        }
+
+        &:last-child {
+          color: #666;
+          margin-top: 1em;
+        }
+      }
+    }
+
+    .card-infos {
+      display: flex;
+      flex: 1;
+
+      @include media('<=tablet') {
+        display: block;
+      }
+      .card-item {
+        flex: 1;
+        &:not(:last-child) {
+          border-right: 1px solid #f2f2f2;
+          @include media('<=tablet') {
+            border-right: none;
+          }
+        }
+        &>div {
+          text-align: center;
+
+        }
+      }
+    }
+
+  }
+
+  &-charts {
+    display: flex;
+    flex-wrap: wrap;
+
+    &>div {
+      width: calc(50% - 1em);
+      height: 380px;
+      padding: 2em;
+      border-radius: 1em;
+      border: 1px solid #f2f2f2;
+      box-shadow: 0 0 3px 3px #f2f2f2;
+      box-sizing: border-box;
+      margin-top: 2em;
+      @include media('<=tablet') {
+        width: 100%;
+        height: 380px;
+        padding: 0.5em;
+      }
+
+      &:nth-child(2n) {
+        margin-left: 2em;
+        @include media('<=tablet') {
+          margin-left: 0;
+        }
+      }
+
+    }
+  }
+
+}
+
+  .common-filepond {
+    height: fit-content ;
+    .filepond--drop-label {
+      height: 300px !important;
+    }
+  }

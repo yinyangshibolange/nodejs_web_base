@@ -1,0 +1,16 @@
+node_modules
+.git
+
+.vercel
+static/uploads
+
+.env
+.env.dev
+dist/
+.vercel
+pm2dev.config.js
+
+.idea
+.vscode
+
+logs/

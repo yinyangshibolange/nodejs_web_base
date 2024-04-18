@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="/css/modules/manager.css">
+    <title>内容管理</title>
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    <script src="/plugins/switch/index.min.js"></script>
+    <!-- <link rel="stylesheet" href="css/checkbix.min.css">
+    <script src="js/checkbix.min.js"></script> -->
+
+    <script src="/plugins/nice-select/js/jquery.nice-select.js"></script>
+    <link rel="stylesheet" href="/plugins/nice-select/css/nice-select.css">
+
+
+    <!-- filepond start -->
+    <link rel="stylesheet" href="/plugins/filepond/dist/filepond.min.css">
+    <script src="/plugins/filepond/dist/filepond.min.js"></script>
+    <script src="/plugins/filepond/filepond.jquery.js"></script>
+    <script src="/plugins/filepond/preview/preview.js"></script>
+    <link rel="stylesheet" href="/plugins/filepond/preview/preview.css">
+    <script src="/plugins/filepond/validate/type.js"></script>
+    <script src="/plugins/filepond/validate/size.js"></script>
+    <!-- filepond end -->
+</head>
+
+<body>
+<div id="container" class="container">
+
+    <h2 class="mt-0px  pd-16px  page-title flex justify-between align-center">
+        <div>
+            <a href="/" class="color-fff">首页</a>
+
+            <span class="font-13px color-fff"> /&nbsp;内容管理</span>
+        </div>
+
+
+        <a href="/manager" class="color-fff font-15px">
+            <i class="iconfont icon-nav_icon_xitongshezhi "></i>内容管理
+        </a>
+    </h2>
+
+    <div class="manager-content">
+        <div id="tabs" class="tab-container">
+            <a data-tabform="settingForm" class="active">全局配置</a>
+            <a data-tabform="htmlForm">建站配置</a>
+            <a data-tabform="exportForm">导入/导出</a>
+            <a data-tabform="backForm">备份/还原</a>
+            <!--    <a data-tabform="syn_from_github_form">同步到github</a>-->
+        </div>
+
+
+        <div id="tabForms" class="tab-forms">
+            <div id="settingForm" class="html-form mt-20px active">
+                <form id="passwordForm" class="common-form common-card" action="/api/admin/savepassword" method="post"
+                      enctype="multipart/form-data">
+                    <div class="common-card-header flex justify-between">
+                        <div class="common-card-title">密码登录</div>
+
+
+                        <div>
+
+                            <input type="checkbox" id="need_password" name="need_password" class="dis-none"
+                                   value="<%- appInfo.need_password %>" <%- appInfo.need_password ? 'checked' : '' %>
+                                   style="display: none">
+                            <jelly-switch
+                                    onToggle="handleToggle('need_password')" <%- appInfo.need_password ? 'checked' : '' %>></jelly-switch>
+                        </div>
+                    </div>
+
+                    <div id="passwordPanel" class="show-panel-ani" data-height="200"
+                         style="height: <%- appInfo.need_password ? '200' : '0' %>px">
+                        <div class="common-card-body">
+
+                            <div class="flex align-center mt-16px">
+                                <label class="w-100px flex" for="password">新密码</label>
+                                <input class="common-input" type="password" value="<%- appInfo.admin_password %>"
+                                       name="password">
+                            </div>
+                            <div class="flex align-center mt-16px">
+                                <label class="w-100px flex" for="confirmPassword">确认密码</label>
+                                <input class="common-input" type="password" value="" name="confirmPassword">
+                            </div>
+                        </div>
+
+                        <div class="common-card-footer">
+                            <button class="submit primary mt-20px common-btn" type="submit">确认修改</button>
+                        </div>
+                    </div>
+                </form>
+                <form id="useossForm" class="common-form common-card mt-16px dis-block" action="/api/admin/savesetting"
+                      method="post" enctype="multipart/form-data" style="margin-top: 1em;">
+                    <div class="form-subtitle common-card-header flex align-center justify-between">
+                        <div class="common-card-title">
+                            <div>图床配置</div>
+                            <div class="font-12px weight-300 color-999 mt-5px">
+                                (如果不使用图床，上传的文件将保存在本地)
+                            </div>
+                        </div>
+                        <div class="flex align-center">
+                            <input type="checkbox" id="useoss" name="useoss" class="dis-none"
+                                   value="<%- appInfo.useoss %>" <%- appInfo.useoss ? 'checked' : '' %>
+                                   style="display: none">
+                            <jelly-switch
+                                    onToggle="handleToggle('useoss')" <%- appInfo.useoss ? 'checked' : '' %>></jelly-switch>
+
+                        </div>
+                    </div>
+
+                    <div id="useossPanel" class="show-panel-ani" data-height="350"
+                         style="height: <%- appInfo.useoss ? '350' : '0' %>px">
+
+                        <div class="common-card-body">
+                            <div class="mt-16px flex align-center">
+                                <select name="osstype" id="osstype" class="nice-select small">
+                                    <option value="alioss" <%- appInfo.osstype==='alioss' ? 'selected' : '' %>>阿里云
+                                    </option>
+                                    <option value="qiniu" <%- appInfo.osstype==='qiniu' ? 'selected' : '' %>>七牛云
+                                    </option>
+                                </select>
+                                <a href="" class="ml-16px">图床管理</a>
+                            </div>
+                            <div id="oss_panel" class="oss-panel  ">
+                                <div class="mt-16px flex align-center">
+                                    <label for="ACCESS_KEY_ID" class="w-160px flex">ACCESS_KEY_ID</label>
+                                    <input class="common-input w-360px" type="text" name="ACCESS_KEY_ID"
+                                           value="<%- appInfo.ACCESS_KEY_ID %>">
+                                </div>
+                                <div class="mt-16px flex align-center">
+                                    <label for="ACCESS_KEY_SECRET" class="w-160px flex">ACCESS_KEY_SECRET</label>
+                                    <input class="common-input w-360px" type="text" name="ACCESS_KEY_SECRET"
+                                           value="<%- appInfo.ACCESS_KEY_SECRET %>">
+                                </div>
+                                <% if(appInfo.osstype === 'alioss'){ %>
+                                    <div class="mt-16px flex align-center">
+                                        <label for="REGION" class="w-160px flex">REGION</label>
+                                        <input class="common-input w-360px" type="text" name="REGION"
+                                               value="<%- appInfo.REGION %>">
+                                    </div>
+                                <% } %>
+                                <div class="mt-16px flex align-center">
+                                    <label for="BUCKET" class="w-160px flex">BUCKET</label>
+                                    <input class="common-input w-360px" type="text" name="BUCKET"
+                                           value="<%- appInfo.BUCKET %>">
+                                </div>
+                            </div>
+
+
+                        </div>
+
+                        <div class="common-card-footer">
+                            <button class="submit primary mt-20px common-btn" type="submit">提交</button>
+
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div id="exportForm" class="html-form mt-20px ">
+
+                <div class="common-card">
+                    <div class="common-card-header flex align-center justify-between">
+                        <div class="common-card-title">导出</div>
+
+
+                        <a class="primary common-btn" target="_blank" href="/api/admin/export">导出</a>
+                    </div>
+                </div>
+
+                <form action="/api/admin/import" class="common-card" method="post" enctype="multipart/form-data"
+                      style="margin-top: 1em;">
+                    <div class="common-card-header flex align-center justify-between">
+                        <div class="common-card-title">
+                            导入
+                        </div>
+                    </div>
+
+
+                    <div class="common-card-body">
+                        <div class=" ">
+                            <div>导入markdonw压缩包</div>
+                            <input type="file" name="mds" class="common-filepond border-none mt-16px "
+                                   accept="application/zip">
+                        </div>
+
+                        <div class="flex mt-20px align-center ">
+                            强制覆盖
+                            <input type="checkbox" name="isforce" class="w-20px h-20px ml-16px">
+                        </div>
+                    </div>
+
+                    <div class="common-card-footer">
+
+                        <button type="submit" class="mt-20px primary common-btn">提交</button>
+                    </div>
+                </form>
+            </div>
+
+
+            <div id="htmlForm" class="html-form mt-20px">
+
+                <form action="/api/admin/postSiteConfig" class="common-form common-card" method="post"
+                      enctype="multipart/form-data">
+                    <div class="common-card-header">
+                        <div class="common-card-title">站点配置</div>
+                    </div>
+                    <div class="common-card-body">
+                        <div class="">
+                            <div class="common-form-item  " style="display: block">
+                                <label for="banner">站点logo</label>
+                                <input id="bannerInput" type="file" class="filepond w-300px mt-16px" name="banner"
+                                       accept="image/*">
+
+                                <!--        <div id="uploadController"-->
+                                <!--             class="upload-image-controller <%- siteConfig.banner ? '' : 'no-image' %>">-->
+                                <!--         <input type="file" class="filepond" name="banner" id="banner" accept="image/*">-->
+                                <!--         <img id="bannerShow" src="<%- siteConfig.banner %>" alt="<%- siteConfig.banner %>">-->
+                                <!--         <%- siteConfig.banner ? `<input type="text" id="oldBanner" name="oldBanner" style="display: none" value="${siteConfig.banner}">` : '' %>-->
+                                <!--        </div>-->
+                            </div>
+
+                            <div class="common-form-item ">
+                                <label for="title">站点标题</label>
+                                <input type="text" name="title" class="common-input w-370px"
+                                       value="<%- siteConfig.title %>">
+                            </div>
+                        </div>
+
+                        <div class=" mt-16px">
+                            <h3 class="pd-10px-0px weight-bold">
+                                启用分类
+                            </h3>
+                            <div class="flex" style="white-space: nowrap; flex-wrap: wrap">
+                                <% for(let k = 0;k < siteConfig.mdTypes.length; k++) { %>
+                                    <div class="flex  align-center w-500px pd-10px-0px">
+                                        <input type="checkbox" id="type_<%- siteConfig.mdTypes[k].type %>"
+                                               name="type_<%- siteConfig.mdTypes[k].type %>"
+                                               value="<%- siteConfig.mdTypes[k].show %>" <%- siteConfig.mdTypes[k].show ? 'checked' : '' %>
+                                               style="display: none">
+                                        <jelly-switch
+                                                onToggle="handleToggle('type_<%- siteConfig.mdTypes[k].type %>')" <%- siteConfig.mdTypes[k].show ? 'checked' : '' %>></jelly-switch>
+                                        <div>
+                                            <%- siteConfig.mdTypes[k].type %>
+                                        </div>
+
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <div class=" common-form-item   " style="display:block;">
+                            <label class="" for="custom_css">
+                                导入自定义css
+                            </label>
+                            <input id="cssInput" type="file" name="custom_css" class="filepond border-none mt-16px"
+                                   accept="text/css">
+                        </div>
+                    </div>
+
+                    <div class="btn-group common-card-footer mt-20px common-btn-group">
+                        <button class="common-btn primary" type="submit">保存配置</button>
+                        <a class="common-btn color-333 ml-16px" href="/index.html" target="_blank">预览</a>
+
+
+                    </div>
+                </form>
+
+                <form action="/api/admin/genSite" class="common-form common-card" style="margin-top: 1em;">
+                    <div class="common-card-header">
+                        <div class="common-card-title">生成站点</div>
+                    </div>
+                    <div class="common-card-footer common-btn-group">
+                        <button type="submit" class="common-btn">
+                            <% if(sitePackageExist) { %>
+                                重新生成站点
+                            <% } else { %>
+                                生成站点
+                            <% } %>
+                        </button>
+
+                        <% if(sitePackageExist) { %>
+                            <a class="common-btn ml-16px primary" href="/api/admin/exportHtml"
+                               download="exportHtml.zip">点击下载</a>
+                        <% } %>
+                    </div>
+                </form>
+
+
+            </div>
+
+
+            <div id="backForm" class="html-form mt-20px">
+
+                <form action="/api/admin/postBackConfig" class="common-form common-card" method="post" enctype="multipart/form-data">
+                    <div class="common-card-header flex justify-between align-center">
+                        <div class="common-card-title">备份设置</div>
+                        <button type="submit" class="common-btn primary">现在备份</button>
+                    </div>
+
+                    <div class="common-card-body">
+                        <div class="common-form-item">
+                            <label for="">每日备份</label>
+                            <input type="checkbox" id="backEveryDay" name="backEveryDay" class="dis-none"
+                                   value="<%- appInfo.backEveryDay %>" <%- appInfo.backEveryDay ? 'checked' : '' %>
+                                   style="display: none">
+                            <jelly-switch
+                                    onToggle="handleToggle('backEveryDay')" <%- appInfo.backEveryDay ? 'checked' : '' %>></jelly-switch>
+                        </div>
+
+                        <div class="common-form-item">
+                            <label for="">备份时间</label>
+                            <input type="time" class="common-input ml-20px" name="backTime" value="<%- appInfo.backTime %>">
+                        </div>
+                    </div>
+                  <div class="common-card-footer">
+                      <div class="common-btn-group">
+
+                          <button class="common-btn primary" type="submit">保存配置</button>
+                      </div>
+                  </div>
+
+
+
+
+                </form>
+
+
+                <div class="common-card mt-20px">
+                    <div class="common-card-header">
+                        <div class="common-card-title">备份还原</div>
+                    </div>
+                    <div class="common-card-body">
+
+                    </div>
+                    <div class="common-card-footer">
+                        <div class="common-btn-group">
+
+                            <button class="common-btn">备份还原</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<script>
+
+    $("#tabs > a ").on("click", function (event) {
+        $("#tabs > a ").each(function (index, ele) {
+            $(ele).removeClass("active")
+
+        })
+        $(this).addClass("active")
+
+        $("#tabForms .html-form").each(function (index, ele) {
+            $(ele).removeClass("active")
+        })
+
+        $(`#${event.currentTarget.dataset.tabform}`).addClass("active")
+    })
+
+
+    $("#radioGroup1 > a").on("click", function (event) {
+        $("#radioGroup1 > a ").each(function (index, ele) {
+            $(ele).removeClass("active")
+        })
+        $(this).addClass("active")
+
+    })
+
+
+    // function exportMds () {
+    //  $.ajax({
+    //   url: "/api/admin/export",
+    //   method: "get",
+    //   success: function (data) {
+
+    //   }
+    //  })
+    // }
+    function handleToggle(id) {
+        var event = window.event || arguments[0];
+        $(`#${id}`).attr('checked', event.detail.value).val(event.detail.value)
+
+        if (id === 'need_password') {
+            if ($(`#${id}`).val() === 'true') {
+                $("#passwordPanel").css("height", `${$("#passwordPanel").attr("data-height")}px`)
+            } else {
+                $("#passwordPanel").css("height", 0)
+
+                $("#passwordForm").submit()
+            }
+        }
+
+        if (id === 'useoss') {
+            if ($(`#${id}`).val() === 'true') {
+                $("#useossPanel").css("height", `${$("#useossPanel").attr("data-height")}px`)
+            } else {
+                $("#useossPanel").css("height", 0)
+
+                $("#useossForm").submit()
+            }
+        }
+    }
+
+
+    function exportHtml(url) {
+        partDownload(url)
+    }
+
+
+    $(document).ready(function () {
+        $('select.nice-select').niceSelect()
+        // FastClick.attach(document.body);
+    });
+    // Option click
+    $("#osstype").on('change', function (event) {
+        $("#useossForm").submit()
+    });
+</script>
+<script src="/js/jquery_dom.js"></script>
+
+<script>
+    showMessage(`<%- typeof success !== 'undefined' && success %>`, `<%- typeof message !== 'undefined' && message %>`)
+</script>
+
+<script type="module">
+    import zh_cn from '/plugins/filepond/locale/zh-cn.js';
+
+    FilePond.setOptions(zh_cn);
+</script>
+<script>
+    FilePond.registerPlugin(FilePondPluginFileValidateSize);
+    FilePond.registerPlugin(FilePondPluginImagePreview);
+    FilePond.registerPlugin(FilePondPluginFileValidateType);
+
+    const pond = FilePond.create($("#bannerInput")[0]);
+    pond.setOptions({
+        allowMultiple: false,
+        storeAsFile: true,
+        maxFileSize: '2MB',
+    });
+    <% if(siteConfig.banner){ %>
+    pond.addFile("<%- siteConfig.banner %>")
+    <% } %>
+
+
+    const pondCss = FilePond.create($("#cssInput")[0]);
+    pondCss.setOptions({
+        allowMultiple: false,
+        storeAsFile: true,
+        maxFileSize: '2MB',
+    });
+    <% if(siteConfig.custom_css){ %>
+    pondCss.addFile("<%- siteConfig.custom_css %>")
+    <% } %>
+
+    $(".common-filepond").filepond({
+        allowMultiple: true,
+        storeAsFile: true,
+        maxFileSize: '2MB',
+    })
+    // $('.filepond').on('FilePond:addfile', function (e) {
+    //  console.log('file added event', e);
+    // });
+</script>
+</body>
+
+</html>

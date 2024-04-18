@@ -1,0 +1,1 @@
+function getQueryString(n,e=window.location.href){return e&&n&&(n=new RegExp("([?&])"+n+"=([^&]*)(&|$)","i"),null!=(e=e.match(n)))?unescape(e[2]):null}window.getQueryString=getQueryString,$(document).ready(function(){});
