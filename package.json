@@ -5,6 +5,7 @@
   "author": "hongyu",
   "license": "MIT",
   "scripts": {
+    "prisma:prep": "prisma format && prisma generate && prisma db push",
     "mini:start": "mini start -c config/mini.config.js",
     "csass:start": "csass start -c config/csass.config.js",
     "vno:start": "vno start -c config/vno.config.js",
@@ -17,6 +18,8 @@
     "pm2start": "pm2 start pm2.config.js"
   },
   "dependencies": {
+    "@prisma/client": "^5.8.1",
+    "prisma": "^5.8.1",
     "ali-oss": "^6.18.1",
     "archiver": "^7.0.1",
     "compressing": "^1.10.0",
@@ -26,6 +29,7 @@
     "ejs": "^3.1.9",
     "file-system-db": "^2.0.0",
     "include-media": "^2.0.0",
+    "ini": "^4.1.2",
     "lodash": "^4.17.21",
     "md5": "^2.3.0",
     "mime": "^3.0.0",

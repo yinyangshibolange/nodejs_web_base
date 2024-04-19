@@ -2,6 +2,8 @@ const {FSDB} = require("file-system-db");
 const path = require("path")
 const {v4: uuidv4} = require('uuid');
 
+
+
 function reduceSame(arr, keys) {
     if (!Array.isArray(keys) || keys.length === 0) {
         return arr
@@ -32,8 +34,11 @@ module.exports = function (jsonName,) {
         if (!Array.isArray(db.get("datalist"))) db.set("datalist", [])
         return db
     }
+    
 
     const db = newDb(jsonName,);
+
+    
 
     function addItem(jsondata, uquines = []) {
         if (!jsondata) {

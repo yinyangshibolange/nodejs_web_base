@@ -1,6 +1,5 @@
 const { getAppInfo } = require("../config/ssr-md.config")
 
-const useFileDb = require("../db/useFileDb")
 
 module.exports = [{
     title: "错误页",
