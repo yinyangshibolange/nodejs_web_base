@@ -18,7 +18,7 @@ module.exports = [{
     'Cache-Control': 'no-cache',
 }, {
     nav: true,
-    title: "首页",
+    title: "简易APP启动器",
     meta: "",
     index: "/",
     path: "htmls/index.ejs",
@@ -37,30 +37,30 @@ module.exports = [{
         appInfo: () => {
             return getAppInfo()
         },
-        sitePackageExist: async () => {
-            try {
-                const tmpPath = path.resolve(process.cwd(), '___tmp___')
-                const site_output_zip = path.resolve(tmpPath, 'site_export_tmp.zip')
-                const fileExist = await fs.promises.stat(site_output_zip)
-                return fileExist.isFile()
-            } catch (err) {
-                return false
-            }
-        },
-        siteConfig: async () => {
-            const siteConfig = siteConfigDb.getAll().data[0]
-            const { typeViewers, title, banner, custom_css } = siteConfig || {}
-            const { mdTypes } = await getMdDatas()
-            return {
-                mdTypes: mdTypes.map(item => {
-                    return {
-                        ...item,
-                        show: typeViewers.some(item1 => item1.type === item.type && item1.show === true)
-                    }
-                }),
-                title, banner, custom_css,
-            }
-        }
+        // sitePackageExist: async () => {
+        //     try {
+        //         const tmpPath = path.resolve(process.cwd(), '___tmp___')
+        //         const site_output_zip = path.resolve(tmpPath, 'site_export_tmp.zip')
+        //         const fileExist = await fs.promises.stat(site_output_zip)
+        //         return fileExist.isFile()
+        //     } catch (err) {
+        //         return false
+        //     }
+        // },
+        // siteConfig: async () => {
+        //     const siteConfig = siteConfigDb.getAll().data[0]
+        //     const { typeViewers, title, banner, custom_css } = siteConfig || {}
+        //     const { mdTypes } = await getMdDatas()
+        //     return {
+        //         mdTypes: mdTypes.map(item => {
+        //             return {
+        //                 ...item,
+        //                 show: typeViewers.some(item1 => item1.type === item.type && item1.show === true)
+        //             }
+        //         }),
+        //         title, banner, custom_css,
+        //     }
+        // }
     }
 }
     // {

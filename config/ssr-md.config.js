@@ -7,7 +7,7 @@ const static_fold = 'static'
 // SERVER_PORT,APP_SCRECT,ADMIN_PASSWORD
 
 let ssrConfig = {
-    app_port: process.env.SERVER_PORT || 3000, // 服务监听的端口号 ，需要重启才能生效
+    app_port: process.env.SERVER_PORT || 3001, // 服务监听的端口号 ，需要重启才能生效
 
     // 密码验证
     need_password: false, // 是否需要密码，才能访问
